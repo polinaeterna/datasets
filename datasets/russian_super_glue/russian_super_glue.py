@@ -9,10 +9,10 @@ import datasets
 
 
 class RussianSuperGlueConfig(datasets.BuilderConfig):
-    """BuilderConfig for SuperGLUE."""
+    """BuilderConfig for RussianSuperGLUE."""
 
     def __init__(self, features, data_url, citation, url, label_classes=("False", "True"), **kwargs):
-        """BuilderConfig for SuperGLUE.
+        """BuilderConfig for RussianSuperGLUE.
 
         Args:
           features: `list[string]`, list of the features that will appear in the
@@ -138,3 +138,12 @@ class RussianSuperGlue(datasets.GeneratorBasedBuilder):
             url="https://russiansuperglue.com/tasks/task_info/LiDiRus",
         )
     ]
+
+    def _info(self):
+        pass
+
+    def _split_generators(self, dl_manager):
+        pass
+
+    def _generate_examples(self, data_file, split):
+        pass
