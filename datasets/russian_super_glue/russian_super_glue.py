@@ -8,15 +8,30 @@ import os
 import datasets
 
 
-TASKS_LOWERCASED_TO_ORIGINAL = {
-    "muserc": "MuSeRC",
-    "danetqa": "DaNetQA",
-    "parus": "PARus",
-    "rcb": "RCB",
-    "russe": "RUSSE",
-    "terra": "TERRa",
-    "lidirus": "LiDiRus"
-}
+_RUSSIAN_SUPER_GLUE_CITATION = """
+@article{shavrina2020russiansuperglue,
+                  title={RussianSuperGLUE: A Russian Language Understanding Evaluation Benchmark},
+                  author={Shavrina, Tatiana and Fenogenova, Alena and Emelyanov, Anton and Shevelev, Denis and Artemova, Ekaterina and Malykh, Valentin and Mikhailov, Vladislav and Tikhonova, Maria and Chertok, Andrey and Evlampiev, Andrey},
+                  journal={arXiv preprint arXiv:2010.15925},
+                  year={2020}
+                  }
+                  
+Note that some RussianSuperGLUE datasets has their own citations.
+MuSeRC and RuCoS:
+(COLING-2020): Read and Reason with MuSeRC and RuCoS: Datasets for MachineReading Comprehension for Russian.
+RUSSE:
+Panchenko, A., Lopukhina, A., Ustalov, D., Lopukhin, K., Arefyev, N., Leontyev, A., 
+Loukachevitch, N.: RUSSE’2018: A Shared Task on Word Sense Induction for the Russian Language. 
+In: Computational Linguistics and Intellectual Technologies: Papers from the Annual International Conference “Dialogue”. pp. 547–564. RSUH, Moscow, Russia (2018)
+DaNetQA:
+DaNetQA: a yes/no Question Answering Dataset for the Russian Language.
+"""
+
+_RUSSIAN_SUPER_GLUE_DESCRIPTION = """
+RussianSuperGLUE is an advanced Russian general language understanding evaluation benchmark.
+It was developed from scratch for the Russian language,
+collected and organized analogically to the SuperGLUE methodology (Wang et al., 2019).
+"""
 
 
 class RussianSuperGlueConfig(datasets.BuilderConfig):
@@ -87,7 +102,7 @@ class RussianSuperGlue(datasets.GeneratorBasedBuilder):
             url="https://russiansuperglue.com/tasks/task_info/MuSeRC",
         ),
         RussianSuperGlueConfig(
-            name="rucos",
+            name="rucos",  # RECORD
             description="",
             # Note that entities and answers will be a sequences of strings. Query
             # will contain @placeholder as a substring, which represents the word
@@ -151,12 +166,50 @@ class RussianSuperGlue(datasets.GeneratorBasedBuilder):
     ]
 
     def _info(self):
-        pass
+        features = {feature: datasets.Value("string") for feature in self.config.features}
+        if self.config.name == "rwsd":
+            features["span1_index"] = datasets.Value("int32")
+            features["span2_index"] = datasets.Value("int32")
+        if self.config.name == "russe":
+            features["start1"] = datasets.Value("int32")
+            features["start2"] = datasets.Value("int32")
+            features["end1"] = datasets.Value("int32")
+            features["end2"] = datasets.Value("int32")
+        if self.config.name == "muserc":
+            features["idx"] = dict(
+                {
+                    "paragraph": datasets.Value("int32"),
+                    "question": datasets.Value("int32"),
+                    "answer": datasets.Value("int32"),
+                }
+            )
+        elif self.config.name == "rucos":
+            features["idx"] = dict(
+                {
+                    "passage": datasets.Value("int32"),
+                    "query": datasets.Value("int32"),
+                }
+            )
+        else:
+            features["idx"] = datasets.Value("int32")
+
+        if self.config.name == "rucos":
+            features["entities"] = datasets.features.Sequence(datasets.Value("string"))
+            # Answers are the subset of entities that are correct.
+            features["answers"] = datasets.features.Sequence(datasets.Value("string"))
+        else:
+            features["label"] = datasets.features.ClassLabel(names=self.config.label_classes)
+
+        return datasets.DatasetInfo(
+            description=_RUSSIAN_SUPER_GLUE_DESCRIPTION + self.config.description,
+            features=datasets.Features(features),
+            homepage=self.config.url,
+            citation=self.config.citation + "\n" + _RUSSIAN_SUPER_GLUE_CITATION,
+        )
 
     def _split_generators(self, dl_manager):
         dl_dir = dl_manager.download_and_extract(self.config.data_url) or ""
         task_name = _get_task_name_from_data_url(self.config.data_url)
-        task_name = _convert_task_name(task_name)
         dl_dir = os.path.join(dl_dir, task_name)
         if self.config.name == "lidirus":
             # this is a diagnostic dataset
@@ -282,8 +335,3 @@ def _get_record_answers(qa):
 
 def _get_task_name_from_data_url(data_url):
     return data_url.split("/")[-1].split(".")[0]
-
-
-# TODO: not really sure that this one is needed
-def _convert_task_name(task_name):
-    return TASKS_LOWERCASED_TO_ORIGINAL[task_name]
