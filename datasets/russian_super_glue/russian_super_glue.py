@@ -16,21 +16,173 @@ _RUSSIAN_SUPER_GLUE_CITATION = """
                   year={2020}
                   }
                   
-Note that some RussianSuperGLUE datasets has their own citations.
+Note that some of the RussianSuperGLUE datasets has their own citations.
 MuSeRC and RuCoS:
 (COLING-2020): Read and Reason with MuSeRC and RuCoS: Datasets for MachineReading Comprehension for Russian.
 RUSSE:
 Panchenko, A., Lopukhina, A., Ustalov, D., Lopukhin, K., Arefyev, N., Leontyev, A., 
 Loukachevitch, N.: RUSSE’2018: A Shared Task on Word Sense Induction for the Russian Language. 
-In: Computational Linguistics and Intellectual Technologies: Papers from the Annual International Conference “Dialogue”. pp. 547–564. RSUH, Moscow, Russia (2018)
-DaNetQA:
-DaNetQA: a yes/no Question Answering Dataset for the Russian Language.
+In: Computational Linguistics and Intellectual Technologies: 
+Papers from the Annual International Conference “Dialogue”. pp. 547–564. RSUH, Moscow, Russia (2018)
 """
 
 _RUSSIAN_SUPER_GLUE_DESCRIPTION = """
 RussianSuperGLUE is an advanced Russian general language understanding evaluation benchmark.
 It was developed from scratch for the Russian language,
 collected and organized analogically to the SuperGLUE methodology (Wang et al., 2019).
+"""
+
+_DANETQA_DESCRIPTION = """
+DaNetQA is a question answering dataset for yes/no questions. These questions are naturally occurring 
+-- they are generated in unprompted and unconstrained settings.
+Each example is a triplet of (question, passage, answer), with the title of the page as optional additional context.
+The text-pair classification setup is similar to existing natural language inference tasks.
+By sampling questions from a distribution of information-seeking queries (rather than prompting annotators for text 
+pairs), we observe significantly more challenging examples compared to existing NLI datasets.
+All text examples were collected in accordance with the methodology for collecting the original dataset 
+(SuperGLUE BoolQ). 
+
+Answers to the questions were received with the help of assessors, and texts were also received automatically 
+using ODQA systems on Wikipedia. Human assessment was carried out on Yandex.Toloka.
+Additionally, to increase number of samples and the distribution of yes/no answers, we added extra data in the same 
+format (data were collected from Yandex.Toloka while generating MuSeRC dataset).
+
+SuperGLUE analogue is BoolQ.
+"""
+
+_RCB_DESCRIPTION = """
+The Russian Commitment Bank is a corpus of naturally occurring discourses whose final sentence contains a 
+clause-embedding predicate under an entailment canceling operator (question, modal, negation, antecedent of 
+conditional).
+
+All text examples were collected from open news sources and literary magazines, then manually reviewed and supplemented 
+by a human assessment on Yandex.Toloka.
+
+SuperGLUE analogue is CommitmentBank.
+"""
+
+_PARUS_DESCRIPTION = """
+Choice of Plausible Alternatives for Russian language (PARus) evaluation provides researchers with a tool 
+for assessing progress in open-domain commonsense causal reasoning. Each question in PARus is composed of a premise 
+and two alternatives, where the task is to select the alternative that more plausibly has a causal relation 
+with the premise. The correct alternative is randomized so that the expected performance of randomly guessing is 50%. 
+
+All text examples were collected from open news sources and literary magazines, then manually reviewed and 
+supplemented by a human assessment on Yandex.Toloka.
+
+SuperGLUE analogue is COPA.
+"""
+
+_MUSERC_DESCRIPTION = """
+MuSeRC is a reading comprehension challenge in which questions can only be answered by taking into account information 
+from multiple sentences. The dataset is the first to study multi-sentence inference at scale, with an open-ended 
+set of question types that requires reasoning skills. Task is binary classification of each answer (True/False).
+
+Our challenge dataset contains ∼6k questions for +800 paragraphs across 5 different domains: elementary school texts, 
+news, fiction stories, fairy tales, summary of series. First, we have collected all data from open sources 
+and automatically preprocessed them, filtered only those paragraphs that corresponding to the following parameters: 
+1) paragraph length 2) number of NER entities 3) number of coreference relations. Afterwords we have check 
+the correct splitting on sentences and numerate each of them. Next, in Yandex.Toloka we have generated the 
+crowdsource task to get from tolkers information: 1) generate questions 2) generate answers 3) check that to solve 
+every question man need more than one sentence in the text. 
+We exclude any question that can be answered based on a single sentence from a paragraph.
+Answers are not written in the full match form in the text.
+Answers to the questions are independent from each other. Their number can distinguish.
+
+SuperGLUE analogue is MultiRC.
+"""
+
+_RUCOS_DESCRIPTION = """
+Russian reading comprehension with Commonsense reasoning (RuCoS) is a large-scale reading comprehension dataset 
+which requires commonsense reasoning. RuCoS consists of queries automatically generated from CNN/Daily Mail 
+news articles; the answer to each query is a text span from a summarizing passage of the corresponding news. 
+The goal of RuCoS is to evaluate a machine`s ability of commonsense reasoning in reading comprehension.
+
+All text examples were collected from open news sources, then automatically filtered with QA systems to 
+prevent obvious questions to infiltrate the dataset. The texts were then filtered by IPM frequency of the 
+contained words and, finally, manually reviewed.
+
+SuperGLUE analogue is ReCoRD.
+"""
+
+_TERRA_DESCRIPTION = """
+Textual Entailment Recognition has been proposed recently as a generic task that captures major semantic inference 
+needs across many NLP applications, such as Question Answering, Information Retrieval, Information Extraction, 
+and Text Summarization. This task requires to recognize, given two text fragments, whether the meaning of one text 
+is entailed (can be inferred) from the other text.
+
+All text examples were collected from open news sources and literary magazines, then manually reviewed and 
+supplemented by a human assessment on Yandex.Toloka.
+
+SuperGLUE analogue is RTE.
+"""
+
+_RUSSE_DESCRIPTION = """
+RUSSE is a benchmark for the evaluation of context-sensitive word embeddings.
+Depending on its context, an ambiguous word can refer to multiple, potentially unrelated, meanings. 
+Mainstream static word embeddings, such as Word2vec and GloVe, are unable to reflect this dynamic semantic nature. 
+Contextualised word embeddings are an attempt at addressing this limitation by computing dynamic representations 
+for words which can adapt based on context.
+RUSSE borrows original data from the Russe project, Word Sense Induction and Disambiguation shared task (2018).
+
+All text examples were collected from Russe original dataset, already collected by Russian Semantic Evaluation 
+at ACL SIGSLAV. Human assessment was carried out on Yandex.Toloka.
+In version 2, we have manually collected testset in the same format.
+
+SuperGLUE analogue is WiC.
+"""
+
+_RWSD_DESCRIPTION = """
+A Winograd schema is a pair of sentences that differ in only one or two words and that contain an ambiguity 
+that is resolved in opposite ways in the two sentences and requires the use of world knowledge and reasoning 
+for its resolution. The strengths of the challenge are that it is clear-cut, in that the answer to each schema 
+is a binary choice; vivid, in that it is obvious to non-experts that a program that fails to get the right answers 
+clearly has serious gaps in its understanding; and difficult, in that it is far beyond the current state of the art.
+
+All text examples were collected manually translating and adapting original Winograd dataset for Russian. 
+Human assessment was carried out on Yandex.Toloka.
+
+SuperGLUE analogue is WSC.
+"""
+
+# TODO: check if AXG is analogous.
+_LIDIRUS_DESCRIPTION = """
+LiDiRus is a diagnostic dataset that covers a large volume of linguistic phenomena, while allowing you to evaluate 
+information systems on a simple test of textual entailment recognition.
+
+All text examples manually translated and adapted from English SuperGLUE Diagnostics.
+
+SuperGLUE analogues are AXB and AXG.
+"""
+
+_DANETQA_CITATION = """
+@article{glushkova2020danetqa,
+  title={Danetqa: a yes/no question answering dataset for the russian language},
+  author={Glushkova, Taisia and Machnev, Alexey and Fenogenova, Alena and Shavrina, Tatiana and Artemova, 
+  Ekaterina and Ignatov, Dmitry I},
+  journal={arXiv preprint arXiv:2010.02605},
+  year={2020}
+}
+"""
+
+_MUSERC_CITATION = """
+@inproceedings{fenogenova2020read,
+  title={Read and Reason with MuSeRC and RuCoS: Datasets for Machine Reading Comprehension for Russian},
+  author={Fenogenova, Alena and Mikhailov, Vladislav and Shevelev, Denis},
+  booktitle={Proceedings of the 28th International Conference on Computational Linguistics},
+  pages={6481--6497},
+  year={2020}
+}
+"""
+
+_RUSSE_CITATION = """
+@article{panchenko2018russe,
+  title={RUSSE'2018: a shared task on word sense induction for the Russian language},
+  author={Panchenko, Alexander and Lopukhina, Anastasiya and Ustalov, Dmitry and Lopukhin, Konstantin and Arefyev, 
+  Nikolay and Leontyev, Alexey and Loukachevitch, Natalia},
+  journal={arXiv preprint arXiv:1803.05795},
+  year={2018}
+}
 """
 
 
@@ -67,24 +219,24 @@ class RussianSuperGlue(datasets.GeneratorBasedBuilder):
     BUILDER_CONFIGS = [
         RussianSuperGlueConfig(
             name="danetqa",
-            description="",
+            description=_DANETQA_DESCRIPTION,
             features=["question", "passage"],
             data_url="https://russiansuperglue.com/tasks/task_info/DaNetQA",
-            citation="",
+            citation=_DANETQA_CITATION,
             url="https://russiansuperglue.com/tasks/download/DaNetQA",
         ),
         RussianSuperGlueConfig(
             name="rcb",
-            description="",  # TODO
+            description=_RCB_DESCRIPTION,
             features=["premise", "hypothesis"],
             label_classes=["entailment", "contradiction", "neutral"],
             data_url="https://russiansuperglue.com/tasks/download/RCB",
-            citation="",  # TODO
+            citation="",
             url="https://russiansuperglue.com/tasks/task_info/RCB",
         ),
         RussianSuperGlueConfig(
             name="parus",
-            description="",
+            description=_PARUS_DESCRIPTION,
             features=["premise", "choice1", "choice2", "question"],
             # Note that question will only be the X in the statement "What's
             # the X for this?".
@@ -95,15 +247,15 @@ class RussianSuperGlue(datasets.GeneratorBasedBuilder):
         ),
         RussianSuperGlueConfig(
             name="muserc",
-            description="",
+            description=_MUSERC_DESCRIPTION,
             features=["paragraph", "question", "answer"],
             data_url="https://russiansuperglue.com/tasks/download/MuSeRC",
-            citation="",
+            citation=_MUSERC_CITATION,
             url="https://russiansuperglue.com/tasks/task_info/MuSeRC",
         ),
         RussianSuperGlueConfig(
-            name="rucos",  # RECORD
-            description="",
+            name="rucos",
+            description=_RUCOS_DESCRIPTION,
             # Note that entities and answers will be a sequences of strings. Query
             # will contain @placeholder as a substring, which represents the word
             # to be substituted in.
@@ -114,7 +266,7 @@ class RussianSuperGlue(datasets.GeneratorBasedBuilder):
         ),
         RussianSuperGlueConfig(
             name="terra",
-            description="",
+            description=_TERRA_DESCRIPTION,
             features=["premise", "hypothesis"],
             label_classes=["entailment", "not_entailment"],
             data_url="https://russiansuperglue.com/tasks/download/TERRa",
@@ -123,17 +275,17 @@ class RussianSuperGlue(datasets.GeneratorBasedBuilder):
         ),
         RussianSuperGlueConfig(
             name="russe",
-            description="",
+            description=_RUSSE_DESCRIPTION,
             # Note that start1, start2, end1, and end2 will be integers stored as
             # datasets.Value('int32').  # TODO
             features=["word", "sentence1", "sentence2", "start1", "start2", "end1", "end2"],
             data_url="https://russiansuperglue.com/tasks/download/RUSSE",
-            citation="",
+            citation=_RUSSE_CITATION,
             url="https://russiansuperglue.com/tasks/task_info/RUSSE",
         ),
         RussianSuperGlueConfig(
             name="rwsd",
-            description="",
+            description=_RWSD_DESCRIPTION,
             # Note that span1_index and span2_index will be integers stored as
             # datasets.Value('int32').
             features=["text", "span1_index", "span2_index", "span1_text", "span2_text"],
@@ -141,6 +293,7 @@ class RussianSuperGlue(datasets.GeneratorBasedBuilder):
             citation="",
             url="https://russiansuperglue.com/tasks/task_info/RWSD",
         ),
+        # TODO: check this
         # RussianSuperGlueConfig(
         #     name="wsc.fixed",
         #     description=(
@@ -156,7 +309,7 @@ class RussianSuperGlue(datasets.GeneratorBasedBuilder):
         # ),
         RussianSuperGlueConfig(
             name="lidirus",
-            description="",
+            description=_LIDIRUS_DESCRIPTION,
             features=["sentence1", "sentence2"],
             label_classes=["entailment", "not_entailment"],
             data_url="https://russiansuperglue.com/tasks/download/LiDiRus",
