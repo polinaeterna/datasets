@@ -18,6 +18,7 @@ import json
 import os
 
 import datasets
+from .languages import LANGUAGES
 
 
 # Find for instance the citation on arxiv or on the dataset repo/website
@@ -47,8 +48,8 @@ _DL_URL = "http://bark.phon.ioc.ee/voxlingua107/{name}.zip"
 
 
 # TODO: what's the best way to provide language codes (there are 107 of them)
-with open(os.path.join(os.getcwd(), "languages.json")) as f:
-    _LANGUAGES = json.load(f)
+# with open(os.path.join(os.path.realpath(__file__), "languages.json")) as f:
+#     _LANGUAGES = json.load(f)
 
 
 class VoxLinguaConfig(datasets.BuilderConfig):
@@ -63,7 +64,7 @@ class VoxLinguaDataset(datasets.GeneratorBasedBuilder):
     """TODO: Short description of my dataset."""
 
     VERSION = datasets.Version("1.0.0")
-    BUILDER_CONFIGS = [VoxLinguaConfig(name=lang) for lang in _LANGUAGES]
+    BUILDER_CONFIGS = [VoxLinguaConfig(name=lang) for lang in LANGUAGES + ["all"]]
 
     def _info(self):
         features = datasets.Features(
@@ -87,8 +88,17 @@ class VoxLinguaDataset(datasets.GeneratorBasedBuilder):
         )
 
     def _split_generators(self, dl_manager):
-        urls = {"train": _DL_URL.format(name=self.config.name), "dev": _DL_URL.format(name="dev")}
-        archive_paths = dl_manager.download_and_extract(urls)
+        dev_url = _DL_URL.format(name="dev")
+        if self.config.name == "all":
+            urls = {
+                "train": [_DL_URL.format(name=lang) for lang in LANGUAGES],  # TODO - how?
+                "dev": dev_url,
+            }
+            archive_paths = dl_manager.download_and_extract(urls)
+
+        else:
+            urls = {"train": _DL_URL.format(name=self.config.name), "dev": dev_url}
+            archive_paths = dl_manager.download_and_extract(urls)
 
         return [
             datasets.SplitGenerator(
@@ -115,7 +125,7 @@ class VoxLinguaDataset(datasets.GeneratorBasedBuilder):
             yield path, {
                 "file": path,
                 "audio": path,
-                # it's always the same withing a configuration (except for the "dev" one),
-                # just to be convenient for further datasets concats
+                # `lang` it's always the same withing a configuration in a train set (except for the "all" one),
+                # that is to be convenient for further datasets concats
                 "language": lang,
             }
