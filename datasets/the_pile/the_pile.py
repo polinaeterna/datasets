@@ -39,6 +39,7 @@ _HOMEPAGE = "https://pile.eleuther.ai/"
 
 _LICENSES = {
     "all": "Multiple: see each subset license",
+    "enron_emails": "Unknown",
     "europarl": "Unknown",
     "free_law": "Unknown",
     "hacker_news": "Unknown",
@@ -49,20 +50,22 @@ _LICENSES = {
     "uspto": "Unknown",
 }
 
+_HOST_URL = "https://mystic.the-eye.eu"  # Before: "https://the-eye.eu"
 _DATA_URLS = {
     "all": {
-        "train": [f"https://the-eye.eu/public/AI/pile/train/{i:0>2}.jsonl.zst" for i in range(30)],
-        "validation": ["https://the-eye.eu/public/AI/pile/val.jsonl.zst"],
-        "test": ["https://the-eye.eu/public/AI/pile/test.jsonl.zst"],
+        "train": [f"{_HOST_URL}/public/AI/pile/train/{i:0>2}.jsonl.zst" for i in range(30)],
+        "validation": [f"{_HOST_URL}/public/AI/pile/val.jsonl.zst"],
+        "test": [f"{_HOST_URL}/public/AI/pile/test.jsonl.zst"],
     },
-    "europarl": "https://the-eye.eu/public/AI/pile_preliminary_components/EuroParliamentProceedings_1996_2011.jsonl.zst",
-    "free_law": "https://the-eye.eu/public/AI/pile_preliminary_components/FreeLaw_Opinions.jsonl.zst",
-    "hacker_news": "https://the-eye.eu/public/AI/pile_preliminary_components/hn.tar.gz",
-    "nih_exporter": "https://the-eye.eu/public/AI/pile_preliminary_components/NIH_ExPORTER_awarded_grant_text.jsonl.zst",
-    "pubmed": "https://the-eye.eu/public/AI/pile_preliminary_components/PUBMED_title_abstracts_2019_baseline.jsonl.zst",
-    "pubmed_central": "https://the-eye.eu/public/AI/pile_preliminary_components/PMC_extracts.tar.gz",
-    "ubuntu_irc": "https://the-eye.eu/public/AI/pile_preliminary_components/ubuntu_irc_until_2020_9_1.jsonl.zst",
-    "uspto": "https://the-eye.eu/public/AI/pile_preliminary_components/pile_uspto.tar",
+    "enron_emails": "http://eaidata.bmk.sh/data/enron_emails.jsonl.zst",
+    "europarl": f"{_HOST_URL}/public/AI/pile_preliminary_components/EuroParliamentProceedings_1996_2011.jsonl.zst",
+    "free_law": f"{_HOST_URL}/public/AI/pile_preliminary_components/FreeLaw_Opinions.jsonl.zst",
+    "hacker_news": f"{_HOST_URL}/public/AI/pile_preliminary_components/hn.tar.gz",
+    "nih_exporter": f"{_HOST_URL}/public/AI/pile_preliminary_components/NIH_ExPORTER_awarded_grant_text.jsonl.zst",
+    "pubmed": f"{_HOST_URL}/public/AI/pile_preliminary_components/PUBMED_title_abstracts_2019_baseline.jsonl.zst",
+    "pubmed_central": f"{_HOST_URL}/public/AI/pile_preliminary_components/PMC_extracts.tar.gz",
+    "ubuntu_irc": f"{_HOST_URL}/public/AI/pile_preliminary_components/ubuntu_irc_until_2020_9_1.jsonl.zst",
+    "uspto": f"{_HOST_URL}/public/AI/pile_preliminary_components/pile_uspto.tar",
 }
 
 _FEATURES = {
@@ -70,6 +73,12 @@ _FEATURES = {
         {
             "text": datasets.Value("string"),
             "meta": {"pile_set_name": datasets.Value("string")},
+        }
+    ),
+    "enron_emails": datasets.Features(
+        {
+            "text": datasets.Value("string"),
+            "meta": datasets.Value("string"),
         }
     ),
     "europarl": datasets.Features(
@@ -213,7 +222,7 @@ class ThePile(datasets.GeneratorBasedBuilder):
                         key += 1
         else:
             for subset in files:
-                if subset in {"europarl", "free_law", "nih_exporter", "pubmed", "ubuntu_irc"}:
+                if subset in {"enron_emails", "europarl", "free_law", "nih_exporter", "pubmed", "ubuntu_irc"}:
                     import zstandard as zstd
 
                     with zstd.open(open(files[subset], "rb"), "rt", encoding="utf-8") as f:

@@ -1,4 +1,3 @@
-# coding=utf-8
 # Copyright 2020 The TensorFlow Datasets Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,13 +16,14 @@
 """Download manager interface."""
 
 import enum
+import io
 import os
 import tarfile
 from datetime import datetime
 from functools import partial
 from typing import Dict, Optional, Union
 
-from .. import config
+from .. import config, utils
 from .file_utils import (
     DownloadConfig,
     cached_path,
@@ -122,7 +122,9 @@ class DownloadManager:
             return remote_file_path
 
         uploaded_path_or_paths = map_nested(
-            lambda local_file_path: upload(local_file_path), downloaded_path_or_paths, disable_tqdm=False
+            lambda local_file_path: upload(local_file_path),
+            downloaded_path_or_paths,
+            disable_tqdm=not utils.is_progress_bar_enabled(),
         )
         return uploaded_path_or_paths
 
@@ -152,7 +154,9 @@ class DownloadManager:
         def url_to_downloaded_path(url):
             return os.path.join(cache_dir, hash_url_to_filename(url))
 
-        downloaded_path_or_paths = map_nested(url_to_downloaded_path, url_or_urls, disable_tqdm=False)
+        downloaded_path_or_paths = map_nested(
+            url_to_downloaded_path, url_or_urls, disable_tqdm=not utils.is_progress_bar_enabled()
+        )
         url_or_urls = NestedDataStructure(url_or_urls)
         downloaded_path_or_paths = NestedDataStructure(downloaded_path_or_paths)
         for url, path in zip(url_or_urls.flatten(), downloaded_path_or_paths.flatten()):
@@ -188,12 +192,19 @@ class DownloadManager:
         # Note that if we have less than 16 files, multi-processing is not activated
         if download_config.num_proc is None:
             download_config.num_proc = 16
+        if download_config.download_desc is None:
+            download_config.download_desc = "Downloading data"
 
         download_func = partial(self._download, download_config=download_config)
 
         start_time = datetime.now()
         downloaded_path_or_paths = map_nested(
-            download_func, url_or_urls, map_tuple=True, num_proc=download_config.num_proc, disable_tqdm=False
+            download_func,
+            url_or_urls,
+            map_tuple=True,
+            num_proc=download_config.num_proc,
+            disable_tqdm=not utils.is_progress_bar_enabled(),
+            desc="Downloading data files",
         )
         duration = datetime.now() - start_time
         logger.info(f"Downloading took {duration.total_seconds() // 60} min")
@@ -215,17 +226,18 @@ class DownloadManager:
             url_or_filename = url_or_path_join(self._base_path, url_or_filename)
         return cached_path(url_or_filename, download_config=download_config)
 
-    def iter_archive(self, path):
-        """Returns iterator over files within archive.
+    def iter_archive(self, path_or_buf: Union[str, io.BufferedReader]):
+        """Iterate over files within an archive.
 
         Args:
-            path: path to archive.
+            path_or_buf (:obj:`str` or :obj:`io.BufferedReader`): Archive path or archive binary file object.
 
-        Returns:
-            Generator yielding tuple (path_within_archive, file_obj).
-            File-Obj are opened in byte mode (io.BufferedReader)
+        Yields:
+            :obj:`tuple`[:obj:`str`, :obj:`io.BufferedReader`]: 2-tuple (path_within_archive, file_object).
+                File object is opened in binary mode.
         """
-        with open(path, "rb") as f:
+
+        def _iter_archive(f):
             stream = tarfile.open(fileobj=f, mode="r|*")
             for tarinfo in stream:
                 file_path = tarinfo.name
@@ -237,9 +249,32 @@ class DownloadManager:
                     # skipping hidden files
                     continue
                 file_obj = stream.extractfile(tarinfo)
-                yield (file_path, file_obj)
+                yield file_path, file_obj
                 stream.members = []
             del stream
+
+        if hasattr(path_or_buf, "read"):
+            yield from _iter_archive(path_or_buf)
+        else:
+            with open(path_or_buf, "rb") as f:
+                yield from _iter_archive(f)
+
+    def iter_files(self, paths):
+        """Iterate over file paths.
+
+        Args:
+            paths (list): Root paths.
+
+        Yields:
+            str: File path.
+        """
+        for path in paths:
+            if os.path.isfile(path):
+                yield path
+            else:
+                for dirpath, _, filenames in os.walk(path):
+                    for filename in filenames:
+                        yield os.path.join(dirpath, filename)
 
     def extract(self, path_or_paths, num_proc=None):
         """Extract given path(s).
@@ -256,8 +291,15 @@ class DownloadManager:
         """
         download_config = self.download_config.copy()
         download_config.extract_compressed_file = True
+        # Extract downloads the file first if it is not already downloaded
+        if download_config.download_desc is None:
+            download_config.download_desc = "Downloading data"
         extracted_paths = map_nested(
-            partial(cached_path, download_config=download_config), path_or_paths, num_proc=num_proc, disable_tqdm=False
+            partial(cached_path, download_config=download_config),
+            path_or_paths,
+            num_proc=num_proc,
+            disable_tqdm=not utils.is_progress_bar_enabled(),
+            desc="Extracting data files",
         )
         path_or_paths = NestedDataStructure(path_or_paths)
         extracted_paths = NestedDataStructure(extracted_paths)
