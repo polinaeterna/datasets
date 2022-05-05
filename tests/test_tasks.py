@@ -110,18 +110,14 @@ class SummarizationTest(TestCase):
 
 class AutomaticSpeechRecognitionTest(TestCase):
     def test_column_mapping(self):
-        task = AutomaticSpeechRecognition(
-            audio_file_column="input_audio_file", transcription_column="input_transcription"
-        )
-        self.assertDictEqual(
-            {"input_audio_file": "audio_file", "input_transcription": "transcription"}, task.column_mapping
-        )
+        task = AutomaticSpeechRecognition(audio_column="input_audio", transcription_column="input_transcription")
+        self.assertDictEqual({"input_audio": "audio", "input_transcription": "transcription"}, task.column_mapping)
 
     def test_from_dict(self):
-        input_schema = Features({"audio_file": Audio()})
+        input_schema = Features({"audio": Audio()})
         label_schema = Features({"transcription": Value("string")})
         template_dict = {
-            "audio_file_column": "input_audio_file",
+            "audio_column": "input_audio",
             "transcription_column": "input_transcription",
         }
         task = AutomaticSpeechRecognition.from_dict(template_dict)
