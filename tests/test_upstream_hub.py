@@ -280,6 +280,7 @@ class TestPushToHub:
             assert local_ds.column_names == hub_ds.column_names
             assert list(local_ds["train"].features.keys()) == list(hub_ds["train"].features.keys())
             assert local_ds["train"].features == hub_ds["train"].features
+        del hub_ds
 
         # Push to hub two times, but the second time with fewer files.
         # Verify that the new files contain the correct dataset and that non-necessary files have been deleted.
